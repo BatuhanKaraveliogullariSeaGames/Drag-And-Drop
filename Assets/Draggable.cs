@@ -8,7 +8,8 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDra
     private CanvasGroup canvasGroup;//drag edilecek transformun alpha değeriyle oynamak için component 
                                     //birde düzgün drop edilmesi için componentte bulunan blockraycast 
                                     //bollenını kollanmak için örneklendirilmiş bir component
-    private Vector3 initialPosition;//transformun başlangıç value sunu tutmak için bir variable
+    //private Vector3 initialPosition;//transformun başlangıç value sunu tutmak için bir variable
+    [SerializeField] private Transform baseSlot;//asıl yerinin positionı
     [SerializeField] private Canvas canvas;//transform düzgün hareket etmesi için canvas scalefactörünü kullanmak 
                                             //adına örneklendirme
 
@@ -20,7 +21,7 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDra
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        initialPosition = rectTransform.anchoredPosition;//drag başladığı andaki transform konumu
+        //initialPosition = rectTransform.anchoredPosition;//drag başladığı andaki transform konumu
         canvasGroup.alpha = .6f;//drag başladığı andaki alpha değeri
         canvasGroup.blocksRaycasts = false;//tekrar seçimi engellemek için bool ataması
     }
@@ -30,12 +31,14 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDra
         Debug.Log(eventData.pointerDrag.name);
 
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;//mouse tracking
+
+        FitCheck(eventData);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         if (!GetHitCondition(eventData))//transformu bırakacağımız yerdeki object kontrolü
-            rectTransform.anchoredPosition = initialPosition;
+            rectTransform.anchoredPosition = baseSlot.localPosition;
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = true;
         //object brakıldıktan sonraki setlemeler
@@ -60,5 +63,24 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDra
          * ardından bu verilerdeki gamobjectler kontrol edilir 
          * ve eğer eventdata ucundaki gameobject slot tagindeyse true döner değilse false  
          */
+    }
+
+    private void FitCheck(PointerEventData eventData)
+    {
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        foreach (var result in results)
+        {
+            if(result.gameObject.CompareTag("Slot"))
+            {
+                if (result.gameObject.GetComponent<Slot>().currentObject != null)
+                {
+                    result.gameObject.GetComponent<Slot>().currentObject.GetComponent<RectTransform>().anchoredPosition = result.gameObject.GetComponent<Slot>().currentObject.GetComponent<Draggable>().baseSlot.localPosition;
+
+                    result.gameObject.GetComponent<Slot>().currentObject = null;
+                }
+            }
+        }
     }
 }
