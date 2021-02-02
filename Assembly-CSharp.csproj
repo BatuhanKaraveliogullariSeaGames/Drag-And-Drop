@@ -65,7 +65,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Draggable.cs" />
-    <Compile Include="Assets\Slot.cs" />
+    <Compile Include="Assets\InteractableSlot.cs" />
+    <Compile Include="Assets\Item.cs" />
+    <Compile Include="Assets\ScriptableObjects\Inventory\Script\InventoryObject.cs" />
+    <Compile Include="Assets\ScriptableObjects\Item\Scripts\ItemObject.cs" />
+    <Compile Include="Assets\SlotButton.cs" />
+    <Compile Include="Assets\StartButton.cs" />
     <Reference Include="UnityEngine">
       <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
